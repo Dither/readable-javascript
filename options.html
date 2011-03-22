@@ -1,0 +1,110 @@
+<!doctype html>
+<html>
+
+<head>
+<meta charset='utf_8'>
+<link rel='stylesheet' href='css/options.css'>
+<title id='widget_title'>Opera Extensions | Readable JavaScript</title>
+</head>
+
+<body>
+<header>
+<img src='icons/icon.png'>
+<h1 id='widget_name'>Readable JavaScript v1.0</h1>
+</header>
+
+<section>
+<h3>Preferences</h3>
+<fieldset>
+<input type='checkbox' id='enable_button'/>
+<label for='enable_button'>Toolbar button (restart needed)</label>
+<br/><br/>
+<label for='indent_size'>Indentation:</label>
+<select id='indent_size'>
+<option value='1'>with a tab character</option>
+<option value='2'>with 2 spaces</option>
+<option value='3'>with 3 spaces</option>
+<option value='4'>with 4 spaces</option>
+<option value='8'>with 8 spaces</option>
+</select>
+<br/>
+<input type='checkbox' id='braces_on_own_line'/>
+<label for='braces_on_own_line'>Braces on own line</label>
+<br/>
+<input type='checkbox' id='preserve_newlines'/>
+<label for='preserve_newlines'>Preserve empty lines</label>
+<br/>
+<input type='checkbox' id='detect_packers'/>
+<label for='detect_packers'> Detect packers</label>
+<br/>
+<input type='checkbox' id='keep_array_indentation'/>
+<label for='keep_array_indentation'>Keep array indentation</label>
+<br/>
+<input type='checkbox' id='enable_coloring'/>
+<label for='enable_coloring'>Syntax highlighting (very slow)</label>
+<br/>
+<input type='checkbox' id='debug_output'/>
+<label for='debug_output'><b>Debug</b> output</label>
+</fieldset>
+<br /><p></p>
+</section>
+
+<footer>
+<p>Powered by the Opera Browser</p>
+</footer>
+
+<script>
+addEventListener('DOMContentLoaded', function() {
+
+var storage = widget.preferences;
+function s2b(s){return s === 'true' ? true : false; }
+
+function setOptions() {
+document.querySelector('#enable_button').checked = s2b(storage['enable_button']);
+document.querySelector('#indent_size').value = Number(storage['indent_size'])
+document.querySelector('#preserve_newlines').checked = s2b(storage['preserve_newlines']);
+document.querySelector('#keep_array_indentation').checked = s2b(storage['keep_array_indentation']);
+document.querySelector('#braces_on_own_line').checked = s2b(storage['braces_on_own_line']);
+document.querySelector('#detect_packers').checked = s2b(storage['detect_packers']);
+document.querySelector('#debug_output').checked = s2b(storage['debug_output']);
+document.querySelector('#enable_coloring').checked = s2b(storage['enable_coloring']);
+}
+
+function saveOptions() {
+    var options = getOptions();
+    storage['enable_button'] = options.enable_button;
+    storage['indent_size'] = options.indent_size;
+    storage['preserve_newlines'] = options.preserve_newlines;
+    storage['keep_array_indentation'] = options.keep_array_indentation;
+    storage['detect_packers'] = options.detect_packers;
+    storage['braces_on_own_line'] = options.braces_on_own_line;
+    var indent_char = (options.indent_size == 1) ? '\t' : ' ';
+    storage['indent_char'] = indent_char;
+    storage['debug_output'] = options.debug_output;
+    storage['enable_coloring'] = options.enable_coloring;
+}
+
+function getOptions() {
+    return {
+        enable_button: document.querySelector('#enable_button').checked,
+        indent_size: document.querySelector('#indent_size').value,
+        preserve_newlines: document.querySelector('#preserve_newlines').checked,
+        keep_array_indentation: document.querySelector('#keep_array_indentation').checked,
+        detect_packers: document.querySelector('#detect_packers').checked,
+        braces_on_own_line: document.querySelector('#braces_on_own_line').checked,
+        debug_output: document.querySelector('#debug_output').checked,
+        enable_coloring: document.querySelector('#enable_coloring').checked,
+    };
+}
+
+function optionChange() { saveOptions(); }
+
+setOptions();
+var inputs = document.querySelectorAll('input,select');
+for (var i=0, e; e=inputs[i]; i++) e.addEventListener('change', optionChange, false);
+
+},false);
+</script>
+
+</body>
+</html>

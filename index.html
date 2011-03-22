@@ -1,0 +1,24 @@
+<!doctype html>
+<html>
+<head>
+<title>Readable JavaScript</title>
+<script type="text/javascript">
+window.addEventListener('load', function () {
+  function s2b(s) { return s === 'true' ? true : false; }
+  if (!s2b(widget.preferences['enable_button'])) return;
+  var theButton;
+  var toolbarUIItemProperties = {
+    title: 'Readable JavaScript',
+    icon: 'icons/icon16.png',
+    popup: {
+      href: 'popup.html',
+      width: 600,
+      height: 400
+    }
+  }
+  theButton = opera.contexts.toolbar.createItem(toolbarUIItemProperties);
+  opera.contexts.toolbar.addItem(theButton);
+}, false);
+</script>
+</head>
+</html>

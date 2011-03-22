@@ -1,0 +1,17 @@
+﻿<?xml version='1.0' encoding='utf-8'?>
+<widget xmlns="http://www.w3.org/ns/widgets" id="extensions:readable-javaScript" version="1.0">
+  <name>Readable JavaScript</name>
+  <author href="http://my.opera.com/DitherSky/blog/">Dither</author>
+  <description>Extension for auto-formatting and colorizing JavaScript code. Triggered by files with .js extension in their URL or by toolbar button.</description>
+  <preference name="indent_size" value="4"/>
+  <preference name="preserve_newlines" value="false"/>
+  <preference name="keep_array_indentation" value="false"/>
+  <preference name="braces_on_own_line" value="false"/>
+  <preference name="detect_packers" value="true"/>
+  <preference name="debug_output" value="true"/>
+  <preference name="enable_coloring" value="false"/>
+  <preference name="enable_button" value="false"/>
+  <preference name="indent_char" value=" "/>
+  <icon src="icons/icon.png"/>
+  <!--<credit>icon.png by Iconshock - non-comercial free license.</credit> -->
+</widget>
