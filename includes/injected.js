@@ -1,8 +1,14 @@
 (function () {
-  if (!window.location.href.match(/\.js(?:\?|$)/) || !document || !document.body || document.body.querySelectorAll('*').length !== 1) return;
+  if (!window.location.href.match(/\.js(?:\?|$)/) || typeof document === 'undefined' || !document.body || document.body.querySelectorAll('*').length !== 1) return;
   
-  function s2b(s) { return s === 'true' ? true : false; }
+  var storage;
+  if (typeof widget === 'undefined' || typeof widget.preferences === 'undefined') { 
+    storage = {'autoparse_js': 'false','enable_button': 'true','indent_size': '4','preserve_newlines':'true','keep_array_indentation':'true','detect_packers':'true','braces_on_own_line':'false','indent_char':' ','debug_output':'false','enable_coloring':'false'}
+  } else { storage = widget.preferences; }
+  
   function log(){ if (s2b(storage['debug_output'])) opera.postError(Array.prototype.slice.call(arguments))}
+  
+///////////////////////////////////// STYLES AND TRANSLATION /////////////////////////////////////////
   
   var JSREADABLE_STRINGS = (function(locale){ var lang = window.navigator.language.slice(0,2); return locale[lang] || locale["en"];})({
     ru: {
@@ -14,14 +20,8 @@
         sec: 'sec.',
     }
   });
-  
-  var storage = widget.preferences;
-  var notification = document.createElement('div'),
-      close = document.createElement('a'),
-      autoHideInterval,
-      secondsTillHide = 12,
-      formatConfirmElement;
- 
+
+
   var cssinfo='/** CSS for bar mode */\
 #jsb4c-bar {\
   height: 22px;\
@@ -97,62 +97,11 @@ li.L9 { background: #eee }\
   .atn { color: #404; }\
   .atv { color: #060; }\
 }';
+
+//////////////////////////////////////////////////////////////////////////////
  
-  function trim_comments(str)
-  {
-      var lines = str.split('\n'), tmp = '';
-      for (var i = 0; i < lines.length; i++) tmp += lines[i].replace(/([^\x2f]*)\x2f\x2f.*$/, '$1');
-      lines = tmp.split('*/');
-      tmp = '';
-      for (var i = 0; i < lines.length; i++) tmp += lines[i].replace(/(.*)\x2f\x2a(.*)$/g, '$1 ');
-      tmp = tmp.replace(/^\s+/g, '');
-      return tmp;
-  }
-  
-  function unpacker_filter(source)
-  {
-  
-      if (s2b(storage['detect_packers'])) {
-          log('[ReadableJS]: Trying to detect packers...');
-  
-          var stripped_source = trim_comments(source);
-          var unpacked = '';
-  
-          if (P_A_C_K_E_R.detect(stripped_source)) {
-              log('[ReadableJS]: P_A_C_K_E_R detected');
-              unpacked = P_A_C_K_E_R.unpack(stripped_source);
-              if (unpacked !== stripped_source) {
-                  return unpacker_filter(unpacked);
-              }
-          }
-  
-          if (EscapedBookmarklet.detect(source)) {
-              log('[ReadableJS]: Escaped bookmarklet detected');
-              unpacked = EscapedBookmarklet.unpack(source);
-              if (unpacked !== stripped_source) {
-                  return unpacker_filter(unpacked);
-              }
-          }
-  
-          if (JavascriptObfuscator.detect(stripped_source)) {
-              log('[ReadableJS]: JavaScript Obfuscator detected');
-              unpacked = JavascriptObfuscator.unpack(stripped_source);
-              if (unpacked !== stripped_source) {
-                  return unpacker_filter(unpacked);
-              }
-          }
-      }
-      return source;
-  }
-  
   log('[ReadableJS]: Readable JavaScript extension started');
-  
-  var css = document.createElement('style');
-  css.type = 'text/css';
-  css.appendChild(document.createTextNode(cssinfo));
-  
-  notification.appendChild(css);
-  
+    
   if (s2b(storage['enable_coloring'])) {
     document.getElementsByTagName('PRE')[0].className = 'prettyprint';
     document.getElementsByTagName('PRE')[0].id = 'javascript'
@@ -161,6 +110,20 @@ li.L9 { background: #eee }\
     css1.appendChild(document.createTextNode(csshighlight));
     document.body.appendChild(css1);
   }
+  
+  if (s2b(storage['autoparse_js'])) { parseJavaScript(); return; }
+  
+  var notification = document.createElement('div'),
+    close = document.createElement('a'),
+    autoHideInterval,
+    secondsTillHide = 12,
+    formatConfirmElement;
+      
+  var css = document.createElement('style');
+  css.type = 'text/css';
+  css.appendChild(document.createTextNode(cssinfo));
+  
+  notification.appendChild(css);
   
   notification.id = 'jsb4c-bar';
   close.id = 'jsb4c-close';
@@ -183,39 +146,43 @@ li.L9 { background: #eee }\
   }, false);
 
   notification.addEventListener('click', function (event) {
-    var code = document.getElementsByTagName('pre')[0];
-    log('[ReadableJS]: JavaScript formatting options:\n indent_size = '+ Number(storage['indent_size'],10)+
-        '\n indent_char = '+storage['indent_char']+
-        '\n preserve_newlines = '+s2b(storage['preserve_newlines'])+
-        '\n braces_on_own_line = '+s2b(storage['braces_on_own_line'])+
-        '\n keep_array_indentation = '+s2b(storage['keep_array_indentation']));
-
     hideNotification();
     event.preventDefault();
     event.stopPropagation();
     
-    setTimeout(function () { 
-    log('[ReadableJS]: Formatting JavaScript...');
-    code.textContent = make_js_readable(unpacker_filter(code.textContent), 
-      {
-        indent_size: Number(storage['indent_size'],10),
-        indent_char: storage['indent_char'],
-        preserve_newlines: s2b(storage['preserve_newlines']),
-        braces_on_own_line: s2b(storage['braces_on_own_line']),
-        keep_array_indentation: s2b(storage['keep_array_indentation']),
-        space_after_anon_function: true
-      }
-    );
-    }, 300);
-    
-    if (s2b(storage['enable_coloring'])) {
-      setTimeout(function () { 
-      log('[ReadableJS]: Coloring JavaScript...');
-      init_pretty_print();
-      window.prettyPrint();
-      }, 400);
-    }
+    parseJavaScript();
   }, false);
+  
+  function parseJavaScript() {
+      log('[ReadableJS]: JavaScript formatting options:\n indent_size = '+ Number(storage['indent_size'],10)+
+          '\n indent_char = "'+storage['indent_char']+'"'+
+          '\n preserve_newlines = '+s2b(storage['preserve_newlines'])+
+          '\n braces_on_own_line = '+s2b(storage['braces_on_own_line'])+
+          '\n keep_array_indentation = '+s2b(storage['keep_array_indentation']));
+        
+      var code = document.getElementsByTagName('PRE')[0];
+      setTimeout(function () { 
+      log('[ReadableJS]: Formatting JavaScript...');
+      code.textContent = make_js_readable((s2b(storage['detect_packers']) ? unpacker_filter(code.textContent) : code.textContent), 
+        {
+          indent_size: parseInt(storage['indent_size'],10),
+          indent_char: storage['indent_char'],
+          preserve_newlines: s2b(storage['preserve_newlines']),
+          braces_on_own_line: s2b(storage['braces_on_own_line']),
+          keep_array_indentation: s2b(storage['keep_array_indentation']),
+          space_after_anon_function: true
+        }
+      );
+      }, s2b(storage['autoparse_js']) ? 0 : 300);
+      
+      if (s2b(storage['enable_coloring'])) {
+        setTimeout(function () { 
+        log('[ReadableJS]: Coloring JavaScript...');
+        init_pretty_print();
+        window.prettyPrint();
+        }, s2b(storage['autoparse_js']) ? 100 : 400);
+      }
+    }
   
   function hideNotification() {
     notification.className = 'hidden';

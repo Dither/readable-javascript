@@ -1,67 +1,86 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
 
 <head>
 <meta charset='utf_8'>
 <link rel='stylesheet' href='css/options.css'>
+<script type='text/javascript' src='includes/common.js'></script>
 <title id='widget_title'>Opera Extensions | Readable JavaScript</title>
 </head>
 
 <body>
 <header>
 <img src='icons/icon.png'>
-<h1 id='widget_name'>Readable JavaScript v1.0</h1>
+<h1 id='widget_name'>Readable JavaScript v1.1</h1>
 </header>
 
 <section>
-<h3>Preferences</h3>
+<h3 id='label_preferences'>Preferences</h3>
 <fieldset>
 <input type='checkbox' id='enable_button'/>
-<label for='enable_button'>Toolbar button (restart needed)</label>
+<label for='enable_button' id='enable_button_label'>Toolbar button (browser restart needed)</label>
+<br/>
+<input type='checkbox' id='autoparse_js'/>
+<label for='autoparse_js' id='autoparse_js_label'>Disable confirmation popup for files (auto-parse)</label>
 <br/><br/>
-<label for='indent_size'>Indentation:</label>
-<select id='indent_size'>
-<option value='1'>with a tab character</option>
-<option value='2'>with 2 spaces</option>
-<option value='3'>with 3 spaces</option>
-<option value='4'>with 4 spaces</option>
-<option value='8'>with 8 spaces</option>
-</select>
+<fieldset id='indent_size'><legend id='indent_size_label'>Indentation:</legend>
+<input type='radio' value='1' name='indent_size' id='indent_size_tab'>
+<label for='indent_size_tab' id='indent_size_tab_label'>tab character</label><br />
+<input type='radio' value='2' name='indent_size' id='indent_size_two'>
+<label for='indent_size_two' id='indent_size_two_label'>2 spaces</label><br />
+<input type='radio' value='3' name='indent_size' id='indent_size_three'>
+<label for='indent_size_three' id='indent_size_three_label'>3 spaces</label><br />
+<input type='radio' value='4' name='indent_size' id='indent_size_four'>
+<label for='indent_size_four' id='indent_size_four_label'>4 spaces</label><br />
+<input type='radio' value='8' name='indent_size' id='indent_size_eight'>
+<label for='indent_size_eight' id='indent_size_eight_label'>8 spaces</label><br />
+</fieldset>
 <br/>
 <input type='checkbox' id='braces_on_own_line'/>
-<label for='braces_on_own_line'>Braces on own line</label>
+<label for='braces_on_own_line' id='braces_on_own_line_label'>Braces on own line</label>
 <br/>
 <input type='checkbox' id='preserve_newlines'/>
-<label for='preserve_newlines'>Preserve empty lines</label>
+<label for='preserve_newlines' id='preserve_newlines_label'>Preserve empty lines</label>
 <br/>
 <input type='checkbox' id='detect_packers'/>
-<label for='detect_packers'> Detect packers</label>
+<label for='detect_packers' id='detect_packers_label'> Detect packers</label>
 <br/>
 <input type='checkbox' id='keep_array_indentation'/>
-<label for='keep_array_indentation'>Keep array indentation</label>
+<label for='keep_array_indentation_label' id='keep_array_indentation_label'>Keep array indentation</label>
 <br/>
 <input type='checkbox' id='enable_coloring'/>
-<label for='enable_coloring'>Syntax highlighting (very slow)</label>
+<label for='enable_coloring' id='enable_coloring_label'>Syntax highlighting (very slow)</label>
 <br/>
 <input type='checkbox' id='debug_output'/>
-<label for='debug_output'><b>Debug</b> output</label>
+<label for='debug_output' id='debug_output_label'>Debug output</label>
 </fieldset>
 <br /><p></p>
 </section>
 
 <footer>
-<p>Powered by the Opera Browser</p>
+<p id='footer_text'>Powered by the Opera Browser</p>
 </footer>
 
 <script>
+document.getElementsByTagName('html')[0].setAttribute('lang', window.navigator.language.slice(0,2));
 addEventListener('DOMContentLoaded', function() {
 
-var storage = widget.preferences;
-function s2b(s){return s === 'true' ? true : false; }
+var storage;
+if (typeof widget === 'undefined' || typeof widget.preferences === 'undefined' ) {window.alert("Opera "+(window.navigator.userAgent.match(/(Version\/)(\d+\.\d+)/))[2]+" doesn't support widget.preferences.\nThis extension will be always using predefined options."); 
+storage = {'autoparse_js': 'false','enable_button': 'true','indent_size': '4','preserve_newlines':'true','keep_array_indentation':'true','detect_packers':'true','braces_on_own_line':'false','indent_char':' ','debug_output':'false','enable_coloring':'false'}
+} else { storage = widget.preferences; }
+
+function setRadioValue(radioNodeList, value) {
+    if (!radioNodeList || typeof value !== 'number') return;
+    for (var i = radioNodeList.length - 1; i > -1; i--) {
+        if (radioNodeList[i].value == value) return radioNodeList[i].checked = true;
+    }
+}
 
 function setOptions() {
+setRadioValue(document.querySelectorAll('input[name="indent_size"]'), parseInt(storage['indent_size'],10));
+document.querySelector('#autoparse_js').checked = s2b(storage['autoparse_js']);
 document.querySelector('#enable_button').checked = s2b(storage['enable_button']);
-document.querySelector('#indent_size').value = Number(storage['indent_size'])
 document.querySelector('#preserve_newlines').checked = s2b(storage['preserve_newlines']);
 document.querySelector('#keep_array_indentation').checked = s2b(storage['keep_array_indentation']);
 document.querySelector('#braces_on_own_line').checked = s2b(storage['braces_on_own_line']);
@@ -72,6 +91,7 @@ document.querySelector('#enable_coloring').checked = s2b(storage['enable_colorin
 
 function saveOptions() {
     var options = getOptions();
+    storage['autoparse_js'] = options.autoparse_js;
     storage['enable_button'] = options.enable_button;
     storage['indent_size'] = options.indent_size;
     storage['preserve_newlines'] = options.preserve_newlines;
@@ -86,8 +106,9 @@ function saveOptions() {
 
 function getOptions() {
     return {
+        autoparse_js: document.querySelector('#autoparse_js').checked,
         enable_button: document.querySelector('#enable_button').checked,
-        indent_size: document.querySelector('#indent_size').value,
+        indent_size: document.querySelector('input[name="indent_size"]:checked').value,
         preserve_newlines: document.querySelector('#preserve_newlines').checked,
         keep_array_indentation: document.querySelector('#keep_array_indentation').checked,
         detect_packers: document.querySelector('#detect_packers').checked,

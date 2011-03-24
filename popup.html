@@ -1,121 +1,45 @@
-<!doctype html>
+<!DOCTYPE html>
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
 <title>Readable JavaScript</title>
-<style type="text/css">
-* { 
-margin: 0 0 0 0;
-padding: 0 0 0 0;
-}
-body {
-font-size:14px;
-font-family: "arial", "helvetica", sans-serif;
-overflow:hidden;
-padding-right:4px;
-padding-top:4px;
-}
-fieldset{
-border: none;
-}
-textarea { 
-font-family: "consolas", "Terminus", "lucida console", "courier new", "courier", monospace;
-font-size: 12px;
-}
-button {
-background:#eee;
-padding:3px 5px;
-border-bottom-color:#999;
-border-bottom-style:solid;
-border-bottom-width:1px;
-border-left-color:#ccc;
-border-left-style:solid;
-border-left-width:1px;
-border-right-color:#999;
-border-right-style:solid;
-border-right-width:1px;
-border-top-color:#ccc;
-border-top-style:solid;
-border-top-width:1px;
-cursor:pointer;
-margin-top:2px;
-width:100%
-}
-</style>
-<script type="text/javascript" src="includes/readable_js.js"></script>
-<script type="text/javascript" src="includes/unpacker_bookmarklet.js"></script>
-<script type="text/javascript" src="includes/unpacker_javascriptobfuscator.js"></script>
-<script type="text/javascript" src="includes/unpacker_p_a_c_k_e_r.js"></script>
-<script type="text/javascript">
-var storage = widget.preferences;
-  
-function s2b(s) { return s === 'true' ? true : false; }
-function log(){ if (s2b(storage['debug_output'])) opera.postError(Array.prototype.slice.call(arguments))}
+<link rel='stylesheet' href='css/popup.css'>
+<script type='text/javascript' src='includes/readable_js.js'></script>
+<script type='text/javascript' src='includes/unpacker_bookmarklet.js'></script>
+<script type='text/javascript' src='includes/unpacker_javascriptobfuscator.js'></script>
+<script type='text/javascript' src='includes/unpacker_p_a_c_k_e_r.js'></script>
+<script type='text/javascript' src='includes/common.js'></script>
+<script type='text/javascript'>
+document.getElementsByTagName('html')[0].setAttribute('lang', window.navigator.language.slice(0,2));
 
-function trim_comments(str)
-{
-   var lines = str.split('\n'), tmp = '';
-   for (var i = 0; i < lines.length; i++) tmp += lines[i].replace(/([^\x2f]*)\x2f\x2f.*$/, '$1');
-   lines = tmp.split('*/');
-   tmp = '';
-   for (var i = 0; i < lines.length; i++) tmp += lines[i].replace(/(.*)\x2f\x2a(.*)$/g, '$1 ');
-   tmp = tmp.replace(/^\s+/g, '');
-   return tmp;
-}
-  
-function unpacker_filter(source)
-{
-  var stripped_source = trim_comments(source);
-  var unpacked = '';
-
-  if (!s2b(storage['detect_packers'])) return source;
-  
-  if (P_A_C_K_E_R.detect(stripped_source)) {
-      unpacked = P_A_C_K_E_R.unpack(stripped_source);
-      if (unpacked !== stripped_source) {
-          return unpacker_filter(unpacked);
-      }
-  }
-
-  if (EscapedBookmarklet.detect(source)) {
-      unpacked = EscapedBookmarklet.unpack(source);
-      if (unpacked !== stripped_source) {
-          return unpacker_filter(unpacked);
-      }
-  }
-
-  if (JavascriptObfuscator.detect(stripped_source)) {
-      unpacked = JavascriptObfuscator.unpack(stripped_source);
-      if (unpacked !== stripped_source) {
-          return unpacker_filter(unpacked);
-      }
-  }
-  return source;
-}
+var storage;
+if (typeof widget === 'undefined' || typeof widget.preferences === 'undefined') { 
+   storage = {'autoparse_js': 'false','enable_button': 'true','indent_size': '4','preserve_newlines':'true','keep_array_indentation':'true','detect_packers':'true','braces_on_own_line':'false','indent_char':' ','debug_output':'false','enable_coloring':'false'}
+} else { storage = widget.preferences; }
 
 function make_readable() {
-  if (document.getElementById('inputjs').value === '') return;
+  var sourcecode = document.getElementById('inputjs').value;
+  if (sourcecode === '') return;
   document.getElementById('makereadable').disabled = true;
   
-  var newjs = make_js_readable(unpacker_filter(document.getElementById('inputjs').value), {
-      indent_size: Number(storage['indent_size'], 10),
+  var newjs = make_js_readable((s2b(storage['detect_packers']) ? unpacker_filter(sourcecode) : sourcecode),{
+      indent_size: parseInt(storage['indent_size'], 10),
       indent_char: storage['indent_char'],
       preserve_newlines: s2b(storage['preserve_newlines']),
       braces_on_own_line: s2b(storage['braces_on_own_line']),
       keep_array_indentation: s2b(storage['keep_array_indentation']),
       space_after_anon_function: true
   });
-  
+    
   document.getElementById('inputjs').value = newjs;
   setTimeout(function(){document.getElementById('makereadable').disabled = false;},100);
 }
 </script>
 </head>
-<body onload="javascript:document.getElementById('inputjs').focus();">
+<body onload="document.getElementById('inputjs').focus()">
 <form action="?" method="post">
     <fieldset class="inputjsbox">
-      <label for="inputjs">JavaScript: </label><br><textarea id="inputjs" type="text" name="inputjs" cols="82" rows="25" required placeholder="/*JavaScript code*/ var test=1; function test(){var a = test; return;}"></textarea>
-      <button onclick="make_readable()" id="makereadable">Make Readable</button>
+      <label id="labeljs" for="inputjs">JavaScript: </label><br><textarea id="inputjs" type="text" name="inputjs" cols="82" rows="25" required placeholder="/*JavaScript code*/ var test=1; function test(){var a = test; return;}"></textarea>
+      <button onclick="make_readable()" id="makereadable">Make readable</button>
     </fieldset>
 </form>
 </body>

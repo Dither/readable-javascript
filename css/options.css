@@ -1,4 +1,4 @@
-html {
+﻿html {
 background: rgb(255,255,255) -o-linear-gradient(rgb(212,212,212),rgb(255,255,255)) repeat-x;
 }
 
@@ -62,8 +62,13 @@ fieldset {
   padding: 10px 20px;
 }
 
-fieldset label {
+fieldset label, fieldset legend {
   margin-left: 0px;
+  font-size: 16px;
+}
+
+#indent_size input[type=radio] {
+  margin-right: 0px !important;
   font-size: 16px;
 }
 
@@ -144,3 +149,22 @@ fieldset input[type=radio]:disabled, fieldset input[type=checkbox]:disabled {
   background: #fff;
   border-color: rgba(80,80,130,0.5);
 }
+
+#label_preferences:lang(ru){content: 'Настройки';/*Preferences*/}
+#widget_name:lang(ru){content: 'Читабельный JavaScript v1.1'; /*Readable JavaScript v1.1*/}
+#enable_button_label:lang(ru){content: 'Кнопка на панели задач (после перезапуска браузера)'; /*Toolbar button (browser restart needed)*/}
+#autoparse_js_label:lang(ru){content: 'Форматирование скриптов без подтверждения'; /*Disable confirmation popup for files (auto-parse)*/}
+#indent_size_label:lang(ru){content: 'Отступы'; /*Indentation:*/}
+#braces_on_own_line_label:lang(ru){content: 'Открывающие фигурные скобки с новой строки'; /*Braces on own line*/}
+#preserve_newlines_label:lang(ru){content: 'Сохранять пустые строки'; /*Preserve empty lines*/}
+#detect_packers_label:lang(ru){content: 'Определять упаковщик'; /*Detect packers*/}
+#keep_array_indentation_label:lang(ru){content: 'Сохранять отступы у массивов'; /*Keep array indentation*/}
+#enable_coloring_label:lang(ru){content: 'Подсветка синтаксиса (очень медленно)'; /*Syntax highlighting (very slow)*/}
+#debug_output_label:lang(ru){content: 'Отладочная информация'; /*Debug output*/}
+#footer_text:lang(ru){content: 'Сделано для браузера Opera'; /*Powered by the Opera Browser*/}
+#indent_size_tab_label:lang(ru){content: 'табуляция';/*tab character*/}
+#indent_size_two_label:lang(ru){content: 'два пробела';/*2 spaces*/}
+#indent_size_three_label:lang(ru){content: 'три пробела';/*3 spaces*/}
+#indent_size_four_label:lang(ru){content: 'четыре пробела';/*4 spaces*/}
+#indent_size_eight_label:lang(ru){content: 'восемь пробелов';/*8 spaces*/}
+
