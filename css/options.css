@@ -137,7 +137,6 @@ fieldset input[type=checkbox], fieldset input[type=radio] {
   height: 20px;
   padding: 5px;
   width: 21px;
-  box-shadow: inset 0 1px 1px rgba(121,153,166,0.75), 0 1px rgba(255,255,255,0.25);
 }
 
 fieldset input[type=radio]:active, fieldset input[type=checkbox]:active {
