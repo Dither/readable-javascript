@@ -26,7 +26,7 @@ There is known speedwise incompatibility with scripts that actively and regardle
 meddle with DOM processing. It can result impairment of highlighting performance to a great extent.
 
 Based on the folowing projects:
-JS PrettyPrint // Copyright (C) 2006 Google Inc.
+Code Prettify // Copyright (C) 2006 Google Inc.
 JS-Beautify // Copyanywhere (?) Einar Lielmanis, <einar@jsbeautifier.org>
 
  
