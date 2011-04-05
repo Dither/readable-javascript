@@ -1,31 +1,44 @@
+/*jslint onevar: false, plusplus: false */
 /*
+
  JS Beautifier
 ---------------
+
+
   Written by Einar Lielmanis, <einar@jsbeautifier.org>
+      http://jsbeautifier.org/
+
   Originally converted to javascript by Vital, <vital76@gmail.com>
+  "End braces on own line" added by Chris J. Shull, <chrisjshull@gmail.com>
+
   You are free to use this in any way you want, in case you find this useful or working for you.
 
   Usage:
-    make_js_readable(js_source_text);
-    make_js_readable(js_source_text, options);
+    js_beautify(js_source_text);
+    js_beautify(js_source_text, options);
 
   The options are:
-    indent_size (default 4)          * indentation size,
-    indent_char (default space)      * character to indent with,
-    preserve_newlines (default true) * whether existing line breaks should be preserved,
+    indent_size (default 4)          — indentation size,
+    indent_char (default space)      — character to indent with,
+    preserve_newlines (default true) — whether existing line breaks should be preserved,
     preserve_max_newlines (default unlimited) - maximum number of line breaks to be preserved in one chunk,
-    indent_level (default 0)         * initial indentation level, you probably won't need this ever,
+    indent_level (default 0)         — initial indentation level, you probably won't need this ever,
 
-    space_after_anon_function (default false) * if true, then space is added between "function ()"
-            (jslint is happy about this); if false, then the common "function()" output is used.
-    braces_on_own_line (default false) - ANSI / Allman brace style, each opening/closing brace gets its own line.
+    space_after_anon_function (default false) — if true, then space is added between "function ()"
+            (jslint is happy about this); if false, then the common "function()" output is used,
+    brace_style (default "collapse") - "collapse" | "expand" | "end-expand"
+            put braces on the same line as control statements (default), or put braces on own line (Allman / ANSI style), or just put end braces on own line.
 
     e.g
 
-    make_js_readable(js_source_text, {indent_size: 1, indent_char: '\t'});
+    js_beautify(js_source_text, {indent_size: 1, indent_char: '\t'});
+
+
 */
 
-function make_js_readable(js_source_text, options) {
+
+
+function js_beautify(js_source_text, options) {
 
     var input, output, token_text, last_type, last_text, last_last_text, last_word, flags, flag_store, indent_string;
     var whitespace, wordchar, punct, parser_pos, line_starters, digits;
@@ -35,7 +48,14 @@ function make_js_readable(js_source_text, options) {
 
     // Some interpreters have unexpected results with foo = baz || bar;
     options = options ? options : {};
-    var opt_braces_on_own_line = options.braces_on_own_line ? options.braces_on_own_line : false;
+
+    var opt_brace_style;
+    if (options.braces_on_own_line != undefined) { //graceful handling of depricated option
+        opt_brace_style = options.braces_on_own_line ? "expand" : "collapse";
+    }
+    opt_brace_style = options.brace_style ? options.brace_style : (opt_brace_style ? opt_brace_style : "collapse");
+
+    //var opt_braces_on_own_line = options.braces_on_own_line ? options.braces_on_own_line : false;
     var opt_indent_size = options.indent_size ? options.indent_size : 4;
     var opt_indent_char = options.indent_char ? options.indent_char : ' ';
     var opt_preserve_newlines = typeof options.preserve_newlines === 'undefined' ? true : options.preserve_newlines;
@@ -143,7 +163,8 @@ function make_js_readable(js_source_text, options) {
             in_case: false,
             eat_next_space: false,
             indentation_baseline: -1,
-            indentation_level: (flags ? flags.indentation_level + ((flags.var_line && flags.var_line_reindented) ? 1 : 0) : opt_indent_level)
+            indentation_level: (flags ? flags.indentation_level + ((flags.var_line && flags.var_line_reindented) ? 1 : 0) : opt_indent_level),
+            ternary_depth: 0
         };
     }
 
@@ -170,50 +191,6 @@ function make_js_readable(js_source_text, options) {
             }
         }
         return false;
-    }
-
-    // Walk backwards from the colon to find a '?' (colon is part of a ternary op)
-    // or a '{' (colon is part of a class literal).  Along the way, keep track of
-    // the blocks and expressions we pass so we only trigger on those chars in our
-    // own level, and keep track of the colons so we only trigger on the matching '?'.
-
-
-    function is_ternary_op() {
-        var level = 0,
-            colon_count = 0;
-        for (var i = output.length - 1; i >= 0; i--) {
-            switch (output[i]) {
-            case ':':
-                if (level === 0) {
-                    colon_count++;
-                }
-                break;
-            case '?':
-                if (level === 0) {
-                    if (colon_count === 0) {
-                        return true;
-                    } else {
-                        colon_count--;
-                    }
-                }
-                break;
-            case '{':
-                if (level === 0) {
-                    return false;
-                }
-                level--;
-                break;
-            case '(':
-            case '[':
-                level--;
-                break;
-            case ')':
-            case ']':
-            case '}':
-                level++;
-                break;
-            }
-        }
     }
 
     function get_next_token() {
@@ -708,9 +685,9 @@ function make_js_readable(js_source_text, options) {
             } else {
                 set_mode('BLOCK');
             }
-            if (opt_braces_on_own_line) {
+            if (opt_brace_style=="expand") {
                 if (last_type !== 'TK_OPERATOR') {
-                    if (last_text == 'return') {
+                    if (last_text === 'return' || last_text === '=') {
                         print_single_space();
                     } else {
                         print_newline(true);
@@ -744,8 +721,10 @@ function make_js_readable(js_source_text, options) {
 
         case 'TK_END_BLOCK':
             restore_mode();
-            if (opt_braces_on_own_line) {
-                print_newline();
+            if (opt_brace_style=="expand") {
+                if (last_text !== '{') {
+                    print_newline();
+                }
                 print_token();
             } else {
                 if (last_type === 'TK_START_BLOCK') {
@@ -817,10 +796,11 @@ function make_js_readable(js_source_text, options) {
             prefix = 'NONE';
 
             if (last_type === 'TK_END_BLOCK') {
+
                 if (!in_array(token_text.toLowerCase(), ['else', 'catch', 'finally'])) {
                     prefix = 'NEWLINE';
                 } else {
-                    if (opt_braces_on_own_line) {
+                    if (opt_brace_style=="expand" || opt_brace_style=="end-expand") {
                         prefix = 'NEWLINE';
                     } else {
                         prefix = 'SPACE';
@@ -834,6 +814,11 @@ function make_js_readable(js_source_text, options) {
             } else if (last_type === 'TK_STRING') {
                 prefix = 'NEWLINE';
             } else if (last_type === 'TK_WORD') {
+                if (last_text === 'else') {
+                    // eat newlines between ...else *** some_op...
+                    // won't preserve extra newlines in this place (if any), but don't care that much
+                    trim_output(true);
+                }
                 prefix = 'SPACE';
             } else if (last_type === 'TK_START_BLOCK') {
                 prefix = 'NEWLINE';
@@ -842,17 +827,25 @@ function make_js_readable(js_source_text, options) {
                 prefix = 'NEWLINE';
             }
 
+            if (in_array(token_text, line_starters) && last_text !== ')') {
+                if (last_text == 'else') {
+                    prefix = 'SPACE';
+                } else {
+                    prefix = 'NEWLINE';
+                }
+            }
+
             if (flags.if_line && last_type === 'TK_END_EXPR') {
                 flags.if_line = false;
             }
             if (in_array(token_text.toLowerCase(), ['else', 'catch', 'finally'])) {
-                if (last_type !== 'TK_END_BLOCK' || opt_braces_on_own_line) {
+                if (last_type !== 'TK_END_BLOCK' || opt_brace_style=="expand" || opt_brace_style=="end-expand") {
                     print_newline();
                 } else {
                     trim_output(true);
                     print_single_space();
                 }
-            } else if (in_array(token_text, line_starters) || prefix === 'NEWLINE') {
+            } else if (prefix === 'NEWLINE') {
                 if ((last_type === 'TK_START_EXPR' || last_text === '=' || last_text === ',') && token_text === 'function') {
                     // no need to force newline on 'function': (function
                     // DONOTHING
@@ -869,10 +862,8 @@ function make_js_readable(js_source_text, options) {
                             print_newline();
                         }
                     }
-                } else {
-                    if (in_array(token_text, line_starters) && last_text !== ')') {
-                        print_newline();
-                    }
+                } else if (in_array(token_text, line_starters) && last_text != ')') {
+                    print_newline();
                 }
             } else if (is_array(flags.mode) && last_text === ',' && last_last_text === '}') {
                 print_newline(); // }, in lists get a newline treatment
@@ -902,6 +893,10 @@ function make_js_readable(js_source_text, options) {
             print_token();
             flags.var_line = false;
             flags.var_line_reindented = false;
+            if (flags.mode == 'OBJECT') {
+                // OBJECT mode is weird and doesn't get reset too well.
+                flags.mode = 'BLOCK';
+            }
             break;
 
         case 'TK_STRING':
@@ -1025,10 +1020,14 @@ function make_js_readable(js_source_text, options) {
                 space_before = false;
 
             } else if (token_text === ':') {
-                if (!is_ternary_op()) {
+                if (flags.ternary_depth == 0) {
                     flags.mode = 'OBJECT';
                     space_before = false;
+                } else {
+                    flags.ternary_depth -= 1;
                 }
+            } else if (token_text === '?') {
+                flags.ternary_depth += 1;
             }
             if (space_before) {
                 print_single_space();

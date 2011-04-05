@@ -21,7 +21,6 @@ if (!window.location.href.match(/\.js(?:\?|$)/) || typeof document === 'undefine
     }
   });
 
-
   var cssinfo='/** CSS for bar mode */\
 #jsb4c-bar {\
   height: 22px;\
@@ -164,7 +163,7 @@ li.L9 { background: #eee }\
       var code = document.getElementsByTagName('PRE')[0];
       setTimeout(function () { 
       log('[ReadableJS]: Formatting JavaScript...');
-      code.textContent = make_js_readable((s2b(storage['detect_packers']) ? unpacker_filter(code.textContent) : code.textContent), 
+      code.textContent = js_beautify((s2b(storage['detect_packers']) ? unpacker_filter(code.textContent) : code.textContent), 
         {
           indent_size: parseInt(storage['indent_size'],10),
           indent_char: storage['indent_char'],

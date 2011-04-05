@@ -21,7 +21,7 @@ function make_readable() {
   if (sourcecode === '') return;
   document.getElementById('makereadable').disabled = true;
   
-  var newjs = make_js_readable((s2b(storage['detect_packers']) ? unpacker_filter(sourcecode) : sourcecode),{
+  var newjs = js_beautify((s2b(storage['detect_packers']) ? unpacker_filter(sourcecode) : sourcecode),{
       indent_size: parseInt(storage['indent_size'], 10),
       indent_char: storage['indent_char'],
       preserve_newlines: s2b(storage['preserve_newlines']),
