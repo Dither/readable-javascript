@@ -1121,8 +1121,3 @@ function make_js_readable(js_source_text, options) {
     return output.join('').replace(/[\n ]+$/, '');
 
 }
-
-// Add support for CommonJS. Just put this file somewhere on your require.paths
-// and you will be able to `var make_js_readable = require("beautify").make_js_readable`.
-if (typeof exports !== "undefined")
-    exports.make_js_readable = make_js_readable;

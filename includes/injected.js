@@ -1,5 +1,5 @@
 (function () {
-  if (!window.location.href.match(/\.js(?:\?|$)/) || typeof document === 'undefined' || !document.body || document.body.querySelectorAll('*').length !== 1) return;
+if (!window.location.href.match(/\.js(?:\?|$)/) || typeof document === 'undefined' || !document.body) return;
   
   var storage;
   if (typeof widget === 'undefined' || typeof widget.preferences === 'undefined') { 
