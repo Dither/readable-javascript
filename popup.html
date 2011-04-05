@@ -13,7 +13,7 @@ document.getElementsByTagName('html')[0].setAttribute('lang', window.navigator.l
 
 var storage;
 if (typeof widget === 'undefined' || typeof widget.preferences === 'undefined') { 
-   storage = {'autoparse_js': 'false','enable_button': 'true','indent_size': '4','preserve_newlines':'true','keep_array_indentation':'true','detect_packers':'true','braces_on_own_line':'false','indent_char':' ','debug_output':'false','enable_coloring':'false'}
+   storage = window.opera.scriptStorage;
 } else { storage = widget.preferences; }
 
 function make_readable() {

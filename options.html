@@ -66,8 +66,9 @@ document.getElementsByTagName('html')[0].setAttribute('lang', window.navigator.l
 addEventListener('DOMContentLoaded', function() {
 
 var storage;
-if (typeof widget === 'undefined' || typeof widget.preferences === 'undefined' ) {window.alert("Opera "+(window.navigator.userAgent.match(/(Version\/)(\d+\.\d+)/))[2]+" doesn't support widget.preferences.\nThis extension will be always using predefined options."); 
-storage = {'autoparse_js': 'false','enable_button': 'true','indent_size': '4','preserve_newlines':'true','keep_array_indentation':'true','detect_packers':'true','braces_on_own_line':'false','indent_char':' ','debug_output':'false','enable_coloring':'false'}
+if (typeof widget === 'undefined' || typeof widget.preferences === 'undefined' ) {
+//opera.postError("Opera "+(window.navigator.userAgent.match(/(Version\/)(\d+\.\d+)/))[2]+" doesn't support widget.preferences.\nThis extension will be always using predefined options."); 
+storage = window.opera.scriptStorage
 } else { storage = widget.preferences; }
 
 function setRadioValue(radioNodeList, value) {

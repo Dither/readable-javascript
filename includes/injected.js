@@ -3,7 +3,7 @@ if (!window.location.href.match(/\.js(?:\?|$)/) || typeof document === 'undefine
   
   var storage;
   if (typeof widget === 'undefined' || typeof widget.preferences === 'undefined') { 
-    storage = {'autoparse_js': 'false','enable_button': 'true','indent_size': '4','preserve_newlines':'true','keep_array_indentation':'true','detect_packers':'true','braces_on_own_line':'false','indent_char':' ','debug_output':'false','enable_coloring':'false'}
+   storage = window.opera.scriptStorage;
   } else { storage = widget.preferences; }
   
   function log(){ if (s2b(storage['debug_output'])) opera.postError(Array.prototype.slice.call(arguments))}
@@ -32,6 +32,7 @@ if (!window.location.href.match(/\.js(?:\?|$)/) || typeof document === 'undefine
   cursor: pointer;\
   background-image: -o-linear-gradient( top, rgb(250,233,167) 0%, rgb(254,243,197) 100% );\
   border-bottom: 1px solid #8e8e8e;\
+  background-color: #FEF3C5;\
   padding-top: 6px;\
   padding-left: 12px;\
   font-family: "Helvetica", "Arial", sans-serif;\

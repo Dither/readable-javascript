@@ -4,7 +4,12 @@
 <title>Readable JavaScript</title>
 <script type="text/javascript">
 window.addEventListener('load', function () {
-if (typeof widget === 'undefined' || typeof widget.preferences === 'undefined' || (widget.preferences['enable_button'] === 'true')) {
+var storage;
+if (typeof widget === 'undefined' || typeof widget.preferences === 'undefined') { 
+   storage = window.opera.scriptStorage;
+} else { storage = widget.preferences; }
+
+if (storage['enable_button'] === 'true') {
   var theButton;
   var toolbarUIItemProperties = {
     title: 'Readable JavaScript',
