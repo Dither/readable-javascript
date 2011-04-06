@@ -4,25 +4,30 @@
 <title>Readable JavaScript</title>
 <script type="text/javascript">
 window.addEventListener('load', function () {
-var storage;
-if (typeof widget === 'undefined' || typeof widget.preferences === 'undefined') { 
-   storage = window.opera.scriptStorage;
-} else { storage = widget.preferences; }
+    var storage = widget.preferences;
 
-if (storage['enable_button'] === 'true') {
-  var theButton;
-  var toolbarUIItemProperties = {
-    title: 'Readable JavaScript',
-    icon: 'icons/icon16.png',
-    popup: {
-      href: 'popup.html',
-      width: 600,
-      height: 400
+    function onConnectHandler(event) {
+        if (event && event.origin && event.origin.indexOf('widget://') == -1) {
+            var tab = opera.extension.tabs.getFocused();
+            if (tab) tab.postMessage({type: 'readable-javascript', options: JSON.stringify(storage)});
+        }
     }
-  }
-  theButton = opera.contexts.toolbar.createItem(toolbarUIItemProperties);
-  opera.contexts.toolbar.addItem(theButton);
-}
+
+    if (storage['enable_button'] === 'true') {
+        var theButton;
+        var toolbarUIItemProperties = {
+            title: 'Readable JavaScript',
+            icon: 'icons/icon16.png',
+            popup: {
+                href: 'popup.html',
+                width: 600,
+                height: 400
+            }
+        }
+        theButton = opera.contexts.toolbar.createItem(toolbarUIItemProperties);
+        opera.contexts.toolbar.addItem(theButton);
+        opera.extension.onconnect = onConnectHandler;
+    }
 }, false);
 </script>
 </head>
