@@ -4,8 +4,6 @@ opera.extension.onmessage = function (e) {
     if (e.data.type == 'readable-javascript') {
         //opera.postError(e.data.options);
         storage = JSON.parse(e.data.options);
-    }
-}
 
 if (!window.location.href.match(/\.js(?:\?|$)/) || typeof document === 'undefined' || !document.body) return;
 
@@ -196,4 +194,6 @@ autoHideInterval = setInterval(function () {
         secondsTillHide--;
     }
 }, 1000);
+    }
+}
 }());
