@@ -1,15 +1,13 @@
 (function () {
 var storage = [];
 opera.extension.onmessage = function (e) {
-    if (e.data.type == 'readable-javascript') {
-        //opera.postError(e.data.options);
-        storage = JSON.parse(e.data.options);
+if (e.data && e.data.type && e.data.type == 'readable-javascript') {  /*opera.postError(e.data.options);*/ storage = JSON.parse(e.data.options);
 
 if (!window.location.href.match(/\.js(?:\?|$)/) || typeof document === 'undefined' || !document.body) return;
 
 function log() { if (s2b(storage['debug_output'])) opera.postError(Array.prototype.slice.call(arguments)); }
 
-///////////////////////////////////// STYLES AND TRANSLATION /////////////////////////////////////////
+////////////////////////////////////////////////////////////// STYLES AND TRANSLATION //////////////////////////////////////////////////////////////////
 
 var JSREADABLE_STRINGS = (function (locale) { var lang = window.navigator.language.slice(0, 2); return locale[lang] || locale["en"];})({
     ru: {
@@ -99,7 +97,7 @@ var csshighlight = '/* Used with pretty_js.js */\
   .atv { color: #060; }\
 }';
 
-//////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 log('[ReadableJS]: extension Readable JavaScript started.');
 
@@ -194,6 +192,5 @@ autoHideInterval = setInterval(function () {
         secondsTillHide--;
     }
 }, 1000);
-    }
-}
+}} // end of opera.extension.onmessage if(...) block
 }());
