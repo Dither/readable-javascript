@@ -1,7 +1,5 @@
 <!DOCTYPE html>
-<html>
-<head>
-<title>Readable JavaScript</title>
+<html><head><title>Readable JavaScript</title>
 <link rel='stylesheet' href='css/popup.css'>
 <script type='text/javascript' src='includes/readable_js.js'></script>
 <script type='text/javascript' src='includes/unpacker_bookmarklet.js'></script>
@@ -11,10 +9,7 @@
 <script type='text/javascript'>
 document.getElementsByTagName('html')[0].setAttribute('lang', window.navigator.language.slice(0,2));
 
-var storage;
-if (typeof widget === 'undefined' || typeof widget.preferences === 'undefined') { 
-   storage = window.opera.scriptStorage;
-} else { storage = widget.preferences; }
+var storage = widget.preferences;
 
 function make_readable() {
   var sourcecode = document.getElementById('inputjs').value;

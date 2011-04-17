@@ -1,15 +1,13 @@
 (function () {
-var storage = [];
-opera.extension.onmessage = function (e) {
-if (e.data && e.data.type && e.data.type == 'readable-javascript') {  /*opera.postError(e.data.options);*/ storage = JSON.parse(e.data.options);
+// opera doesn't set title unless it's error response
+if (!window.location.href.match(/\.js(?:\?|$)/) || typeof document == undefined || document.getElementsByTagName('TITLE')[0] || !document.body) return;
+  
+var storage = widget.preferences;
+function log(){ if (s2b(storage['debug_output'])) opera.postError(Array.prototype.slice.call(arguments))}
 
-if (!window.location.href.match(/\.js(?:\?|$)/) || typeof document === 'undefined' || !document.body) return;
-
-function log() { if (s2b(storage['debug_output'])) opera.postError(Array.prototype.slice.call(arguments)); }
-
-////////////////////////////////////////////////////////////// STYLES AND TRANSLATION //////////////////////////////////////////////////////////////////
-
-var JSREADABLE_STRINGS = (function (locale) { var lang = window.navigator.language.slice(0, 2); return locale[lang] || locale["en"];})({
+///////////////////////////////////// STYLES AND TRANSLATION /////////////////////////////////////////
+  
+var JSREADABLE_STRINGS = (function(locale){ var lang = window.navigator.language.slice(0,2); return locale[lang] || locale["en"];})({
     ru: {
         hint: "\u0424\u0430\u0439\u043b \u043f\u043e\u0445\u043e\u0436 \u043d\u0430 JavaScript. \u041a\u043b\u0438\u043a\u043d\u0438\u0442\u0435 \u043d\u0430 \u044d\u0442\u043e\u043c \u0432\u0441\u043f\u043b\u044b\u0432\u0430\u044e\u0449\u0435\u043c \u043e\u043a\u043e\u0448\u043a\u0435 \u0434\u043b\u044f \u0435\u0433\u043e \u0444\u043e\u0440\u043c\u0430\u0442\u0438\u0440\u043e\u0432\u0430\u043d\u0438\u044f. \u0410\u0432\u0442\u043e\u0437\u0430\u043a\u0440\u044b\u0442\u0438\u0435 \u0447\u0435\u0440\u0435\u0437 ",
         sec: "\u0441\u0435\u043a.",
@@ -36,7 +34,7 @@ var cssinfo = '/** CSS for bar mode */\
   font-family: "Helvetica", "Arial", sans-serif;\
   font-size: 12px;\
   vertical-align: middle;\
-  z-index: 1;\
+  z-index: 21474;\
   \
   -o-transition-property: top;\
   -o-transition-duration: 0.6s;\
@@ -45,16 +43,17 @@ var cssinfo = '/** CSS for bar mode */\
   top: 0px;\
 }\
 #jsb4c-close {\
-  display: inline-block;\
-  height: 22px;\
-  width: 44px;\
-  float: right;\
+  display: inline-block !important;\
+  height: 22px !important;\
+  width: 44px !important;\
+  float: right !important;\
   text-indent: -9999px;\
-  margin: -18px 10px 0 0;\
+  margin: -18px 10px 0 0 !important;\
+  padding: 0 !important;\
   background-color: transparent;\
   background-repeat: no-repeat;\
-  background-position: 50% 50%;\
-  z-index: 1001;\
+  background-position: 50% 50% !important;\
+  z-index: 21475;\
 }';
 
 var csshighlight = '/* Used with pretty_js.js */\
@@ -112,7 +111,7 @@ var css = document.createElement('style');
 css.type = 'text/css';
 css.appendChild(document.createTextNode(cssinfo));
 
-notification.appendChild(css);
+(document.getElementsByTagName('head')[0] || document.documentElement).appendChild(css);
 
 notification.id = 'jsb4c-bar';
 close.id = 'jsb4c-close';
@@ -165,7 +164,7 @@ function parseJavaScript() {
         var css1 = document.createElement('style');
         css1.type = 'text/css';
         css1.appendChild(document.createTextNode(csshighlight));
-        document.body.appendChild(css1);
+        (document.getElementsByTagName('head')[0] || document.documentElement).appendChild(css1);
 
         setTimeout(function () {
             log('[ReadableJS]: Coloring JavaScript...');
@@ -192,5 +191,4 @@ autoHideInterval = setInterval(function () {
         secondsTillHide--;
     }
 }, 1000);
-}} // end of opera.extension.onmessage if(...) block
 }());

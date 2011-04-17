@@ -5,14 +5,6 @@
 <script type="text/javascript">
 window.addEventListener('load', function () {
     var storage = widget.preferences;
-
-    function onConnectHandler(event) {
-        if (event && event.origin && event.origin.indexOf('widget://') == -1) {
-            var tab = opera.extension.tabs.getFocused();
-            if (tab) tab.postMessage({type: 'readable-javascript', options: JSON.stringify(storage)});
-        }
-    }
-
     if (storage['enable_button'] === 'true') {
         var theButton;
         var toolbarUIItemProperties = {
@@ -26,7 +18,6 @@ window.addEventListener('load', function () {
         }
         theButton = opera.contexts.toolbar.createItem(toolbarUIItemProperties);
         opera.contexts.toolbar.addItem(theButton);
-        opera.extension.onconnect = onConnectHandler;
     }
 }, false);
 </script>

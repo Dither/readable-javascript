@@ -1,13 +1,8 @@
 <!DOCTYPE html>
-<html>
-
-<head>
-<meta charset='utf_8'>
+<html><head><meta charset='UTF-8'><title id='widget_title'>Opera Extensions | Readable JavaScript</title>
 <link rel='stylesheet' href='css/options.css'>
 <script type='text/javascript' src='includes/common.js'></script>
-<title id='widget_title'>Opera Extensions | Readable JavaScript</title>
 </head>
-
 <body>
 <header>
 <img src='icons/icon.png'>
@@ -65,17 +60,11 @@
 document.getElementsByTagName('html')[0].setAttribute('lang', window.navigator.language.slice(0,2));
 addEventListener('DOMContentLoaded', function() {
 
-var storage;
-if (typeof widget === 'undefined' || typeof widget.preferences === 'undefined' ) {
-//opera.postError("Opera "+(window.navigator.userAgent.match(/(Version\/)(\d+\.\d+)/))[2]+" doesn't support widget.preferences.\nThis extension will be always using predefined options."); 
-storage = window.opera.scriptStorage
-} else { storage = widget.preferences; }
+var storage = widget.preferences;
 
 function setRadioValue(radioNodeList, value) {
     if (!radioNodeList || typeof value !== 'number') return;
-    for (var i = radioNodeList.length - 1; i > -1; i--) {
-        if (radioNodeList[i].value == value) return radioNodeList[i].checked = true;
-    }
+    for (var i = radioNodeList.length - 1; i > -1; i--) { if (radioNodeList[i].value == value) return radioNodeList[i].checked = true; }
 }
 
 function setOptions() {
