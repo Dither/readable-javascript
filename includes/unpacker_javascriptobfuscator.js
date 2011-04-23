@@ -1,3 +1,7 @@
+// ==UserScript==
+// @include *.js*
+// ==/UserScript==
+
 //
 // simple unpacker/deobfuscator for scripts messed up with javascriptobfuscator.com
 // written by Einar Lielmanis <einar@jsbeautifier.org>

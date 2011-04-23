@@ -1,3 +1,7 @@
+// ==UserScript==
+// @include *.js*
+// ==/UserScript==
+
 (function () {
 // opera doesn't set title unless it's error response
 if (!window.location.href.match(/\.js(?:\?|$)/) || typeof document == undefined || document.getElementsByTagName('TITLE')[0] || !document.body) return;

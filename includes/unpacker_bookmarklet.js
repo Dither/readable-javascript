@@ -1,3 +1,7 @@
+// ==UserScript==
+// @include *.js*
+// ==/UserScript==
+
 //
 // trivial bookmarklet/escaped script detector for the javascript beautifier
 // written by Einar Lielmanis <einar@jsbeautifier.org>

@@ -1,3 +1,7 @@
+// ==UserScript==
+// @include *.js*
+// ==/UserScript==
+
 function s2b(s) { return s === 'true' ? true : false; }
 
 function trim_comments(str)

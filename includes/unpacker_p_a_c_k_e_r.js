@@ -1,3 +1,7 @@
+// ==UserScript==
+// @include *.js*
+// ==/UserScript==
+
 //
 // Unpacker for Dean Edward's p.a.c.k.e.r, a part of javascript beautifier
 // written by Einar Lielmanis <einar@jsbeautifier.org>

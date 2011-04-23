@@ -1,4 +1,6 @@
-/*jslint onevar: false, plusplus: false */
+// ==UserScript==
+// @include *.js*
+// ==/UserScript==
 /*
 
  JS Beautifier
