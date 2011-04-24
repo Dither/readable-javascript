@@ -24,6 +24,7 @@ var JSREADABLE_STRINGS = (function(locale){ var lang = window.navigator.language
 
 var cssinfo = '/** CSS for bar mode */\
 #jsb4c-bar {\
+  display: none;\
   height: 22px;\
   position: fixed;\
   top: -40px;\
@@ -45,6 +46,7 @@ var cssinfo = '/** CSS for bar mode */\
 }\
 #jsb4c-bar.visible {\
   top: 0px;\
+  display: block;\
 }\
 #jsb4c-close {\
   display: inline-block !important;\
