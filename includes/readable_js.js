@@ -1,6 +1,7 @@
 // ==UserScript==
 // @include *.js*
 // ==/UserScript==
+/*jslint onevar: false, plusplus: false */
 /*
 
  JS Beautifier
@@ -20,14 +21,18 @@
     js_beautify(js_source_text, options);
 
   The options are:
-    indent_size (default 4)          â€” indentation size,
-    indent_char (default space)      â€” character to indent with,
-    preserve_newlines (default true) â€” whether existing line breaks should be preserved,
+    indent_size (default 4)          — indentation size,
+    indent_char (default space)      — character to indent with,
+    preserve_newlines (default true) — whether existing line breaks should be preserved,
     preserve_max_newlines (default unlimited) - maximum number of line breaks to be preserved in one chunk,
-    indent_level (default 0)         â€” initial indentation level, you probably won't need this ever,
+    indent_level (default 0)         — initial indentation level, you probably won't need this ever,
 
-    space_after_anon_function (default false) â€” if true, then space is added between "function ()"
-            (jslint is happy about this); if false, then the common "function()" output is used,
+    jslint_happy (default false) — if true, then jslint-stricter mode is enforced.
+
+            jslint_happy   !jslint_happy
+            ---------------------------------
+             function ()      function()
+
     brace_style (default "collapse") - "collapse" | "expand" | "end-expand"
             put braces on the same line as control statements (default), or put braces on own line (Allman / ANSI style), or just put end braces on own line.
 
@@ -52,18 +57,23 @@ function js_beautify(js_source_text, options) {
     options = options ? options : {};
 
     var opt_brace_style;
-    if (options.braces_on_own_line != undefined) { //graceful handling of depricated option
+
+    // compatibility
+    if (options.space_after_anon_function !== undefined && options.jslint_happy === undefined) {
+        options.jslint_happy = options.space_after_anon_function;
+    }
+    if (options.braces_on_own_line !== undefined) { //graceful handling of depricated option
         opt_brace_style = options.braces_on_own_line ? "expand" : "collapse";
     }
     opt_brace_style = options.brace_style ? options.brace_style : (opt_brace_style ? opt_brace_style : "collapse");
 
-    //var opt_braces_on_own_line = options.braces_on_own_line ? options.braces_on_own_line : false;
+
     var opt_indent_size = options.indent_size ? options.indent_size : 4;
     var opt_indent_char = options.indent_char ? options.indent_char : ' ';
     var opt_preserve_newlines = typeof options.preserve_newlines === 'undefined' ? true : options.preserve_newlines;
     var opt_max_preserve_newlines = typeof options.max_preserve_newlines === 'undefined' ? false : options.max_preserve_newlines;
     var opt_indent_level = options.indent_level ? options.indent_level : 0; // starting indentation
-    var opt_space_after_anon_function = options.space_after_anon_function === 'undefined' ? false : options.space_after_anon_function;
+    var opt_jslint_happy = options.jslint_happy === 'undefined' ? false : options.jslint_happy;
     var opt_keep_array_indentation = typeof options.keep_array_indentation === 'undefined' ? false : options.keep_array_indentation;
 
     just_added_newline = false;
@@ -322,7 +332,9 @@ function js_beautify(js_source_text, options) {
             if (c === 'in') { // hack for 'in' operator
                 return [c, 'TK_OPERATOR'];
             }
-            if (wanted_newline && last_type !== 'TK_OPERATOR' && !flags.if_line && (opt_preserve_newlines || last_text !== 'var')) {
+            if (wanted_newline && last_type !== 'TK_OPERATOR'
+                && last_type !== 'TK_EQUALS'
+                && !flags.if_line && (opt_preserve_newlines || last_text !== 'var')) {
                 print_newline();
             }
             return [c, 'TK_WORD'];
@@ -642,9 +654,9 @@ function js_beautify(js_source_text, options) {
                 // do nothing on (( and )( and ][ and ]( and .(
             } else if (last_type !== 'TK_WORD' && last_type !== 'TK_OPERATOR') {
                 print_single_space();
-            } else if (last_word === 'function') {
+            } else if (last_word === 'function' || last_word === 'typeof') {
                 // function() vs function ()
-                if (opt_space_after_anon_function) {
+                if (opt_jslint_happy) {
                     print_single_space();
                 }
             } else if (in_array(last_text, line_starters) || last_text === 'catch') {
@@ -766,6 +778,9 @@ function js_beautify(js_source_text, options) {
             }
 
             if (token_text === 'function') {
+                if (flags.var_line) {
+                    flags.var_line_reindented = true;
+                }
                 if ((just_added_newline || last_text === ';') && last_text !== '{') {
                     // make sure there is a nice clean space of at least one blank line
                     // before a new function definition
@@ -851,6 +866,8 @@ function js_beautify(js_source_text, options) {
                 if ((last_type === 'TK_START_EXPR' || last_text === '=' || last_text === ',') && token_text === 'function') {
                     // no need to force newline on 'function': (function
                     // DONOTHING
+                } else if (token_text === 'function' && last_text == 'new') {
+                    print_single_space();
                 } else if (last_text === 'return' || last_text === 'throw') {
                     // no newline between 'return nnn'
                     print_single_space();
@@ -861,10 +878,14 @@ function js_beautify(js_source_text, options) {
                             // no newline for } else if {
                             print_single_space();
                         } else {
+                            flags.var_line = false;
+                            flags.var_line_reindented = false;
                             print_newline();
                         }
                     }
                 } else if (in_array(token_text, line_starters) && last_text != ')') {
+                    flags.var_line = false;
+                    flags.var_line_reindented = false;
                     print_newline();
                 }
             } else if (is_array(flags.mode) && last_text === ',' && last_last_text === '}') {
