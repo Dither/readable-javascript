@@ -2,6 +2,65 @@
 <html><head><meta charset='UTF-8'><title id='widget_title'>Opera Extensions | Readable JavaScript</title>
 <link rel='stylesheet' href='css/options.css'>
 <script type='text/javascript' src='includes/common.js'></script>
+<script>
+document.getElementsByTagName('html')[0].setAttribute('lang', window.navigator.language.slice(0,2));
+addEventListener('DOMContentLoaded', function() {
+var storage = widget.preferences;
+
+function setRadioValue(radioNodeList, value) {
+    if (!radioNodeList || typeof value !== 'number') return;
+    for (var i = radioNodeList.length - 1; i > -1; i--) { if (radioNodeList[i].value == value) return radioNodeList[i].checked = true; }
+}
+
+function setOptions() {
+    setRadioValue(document.querySelectorAll('input[name="indent_size"]'), parseInt(storage['indent_size'],10));
+    document.querySelector('#autoparse_js').checked = s2b(storage['autoparse_js']);
+    document.querySelector('#enable_button').checked = s2b(storage['enable_button']);
+    document.querySelector('#preserve_newlines').checked = s2b(storage['preserve_newlines']);
+    document.querySelector('#keep_array_indentation').checked = s2b(storage['keep_array_indentation']);
+    document.querySelector('#braces_on_own_line').checked = s2b(storage['braces_on_own_line']);
+    document.querySelector('#detect_packers').checked = s2b(storage['detect_packers']);
+    document.querySelector('#debug_output').checked = s2b(storage['debug_output']);
+    document.querySelector('#enable_coloring').checked = s2b(storage['enable_coloring']);
+}
+
+function saveOptions() {
+    var options = getOptions();
+    storage['autoparse_js'] = options.autoparse_js;
+    storage['enable_button'] = options.enable_button;
+    storage['indent_size'] = options.indent_size;
+    storage['preserve_newlines'] = options.preserve_newlines;
+    storage['keep_array_indentation'] = options.keep_array_indentation;
+    storage['detect_packers'] = options.detect_packers;
+    storage['braces_on_own_line'] = options.braces_on_own_line;
+    var indent_char = (options.indent_size == 1) ? '\t' : ' ';
+    storage['indent_char'] = indent_char;
+    storage['debug_output'] = options.debug_output;
+    storage['enable_coloring'] = options.enable_coloring;
+}
+
+function getOptions() {
+    return {
+        autoparse_js: document.querySelector('#autoparse_js').checked,
+        enable_button: document.querySelector('#enable_button').checked,
+        indent_size: document.querySelector('input[name="indent_size"]:checked').value,
+        preserve_newlines: document.querySelector('#preserve_newlines').checked,
+        keep_array_indentation: document.querySelector('#keep_array_indentation').checked,
+        detect_packers: document.querySelector('#detect_packers').checked,
+        braces_on_own_line: document.querySelector('#braces_on_own_line').checked,
+        debug_output: document.querySelector('#debug_output').checked,
+        enable_coloring: document.querySelector('#enable_coloring').checked,
+    };
+}
+
+function optionChange() { saveOptions(); }
+
+setOptions();
+var inputs = document.querySelectorAll('input,select');
+for (var i=0, e; e=inputs[i]; i++) e.addEventListener('change', optionChange, false);
+
+},false);
+</script>
 </head>
 <body>
 <header>
@@ -55,67 +114,5 @@
 <footer>
 <p id='footer_text'>Powered by the Opera Browser</p>
 </footer>
-
-<script>
-document.getElementsByTagName('html')[0].setAttribute('lang', window.navigator.language.slice(0,2));
-addEventListener('DOMContentLoaded', function() {
-
-var storage = widget.preferences;
-
-function setRadioValue(radioNodeList, value) {
-    if (!radioNodeList || typeof value !== 'number') return;
-    for (var i = radioNodeList.length - 1; i > -1; i--) { if (radioNodeList[i].value == value) return radioNodeList[i].checked = true; }
-}
-
-function setOptions() {
-setRadioValue(document.querySelectorAll('input[name="indent_size"]'), parseInt(storage['indent_size'],10));
-document.querySelector('#autoparse_js').checked = s2b(storage['autoparse_js']);
-document.querySelector('#enable_button').checked = s2b(storage['enable_button']);
-document.querySelector('#preserve_newlines').checked = s2b(storage['preserve_newlines']);
-document.querySelector('#keep_array_indentation').checked = s2b(storage['keep_array_indentation']);
-document.querySelector('#braces_on_own_line').checked = s2b(storage['braces_on_own_line']);
-document.querySelector('#detect_packers').checked = s2b(storage['detect_packers']);
-document.querySelector('#debug_output').checked = s2b(storage['debug_output']);
-document.querySelector('#enable_coloring').checked = s2b(storage['enable_coloring']);
-}
-
-function saveOptions() {
-    var options = getOptions();
-    storage['autoparse_js'] = options.autoparse_js;
-    storage['enable_button'] = options.enable_button;
-    storage['indent_size'] = options.indent_size;
-    storage['preserve_newlines'] = options.preserve_newlines;
-    storage['keep_array_indentation'] = options.keep_array_indentation;
-    storage['detect_packers'] = options.detect_packers;
-    storage['braces_on_own_line'] = options.braces_on_own_line;
-    var indent_char = (options.indent_size == 1) ? '\t' : ' ';
-    storage['indent_char'] = indent_char;
-    storage['debug_output'] = options.debug_output;
-    storage['enable_coloring'] = options.enable_coloring;
-}
-
-function getOptions() {
-    return {
-        autoparse_js: document.querySelector('#autoparse_js').checked,
-        enable_button: document.querySelector('#enable_button').checked,
-        indent_size: document.querySelector('input[name="indent_size"]:checked').value,
-        preserve_newlines: document.querySelector('#preserve_newlines').checked,
-        keep_array_indentation: document.querySelector('#keep_array_indentation').checked,
-        detect_packers: document.querySelector('#detect_packers').checked,
-        braces_on_own_line: document.querySelector('#braces_on_own_line').checked,
-        debug_output: document.querySelector('#debug_output').checked,
-        enable_coloring: document.querySelector('#enable_coloring').checked,
-    };
-}
-
-function optionChange() { saveOptions(); }
-
-setOptions();
-var inputs = document.querySelectorAll('input,select');
-for (var i=0, e; e=inputs[i]; i++) e.addEventListener('change', optionChange, false);
-
-},false);
-</script>
-
 </body>
 </html>
