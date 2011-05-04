@@ -40,5 +40,12 @@ function unpacker_filter(source)
           return unpacker_filter(unpacked);
       }
   }
+  
+  if (MyObfuscate.detect(stripped_source)) {
+  unpacked = MyObfuscate.unpack(stripped_source);
+      if (unpacked !== stripped_source) {
+          return unpacker_filter(unpacked);
+      }
+  }
   return source;
 }
