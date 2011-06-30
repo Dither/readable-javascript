@@ -1,6 +1,3 @@
-// ==UserScript==
-// @include *.js*
-// ==/UserScript==
 /*jslint onevar: false, plusplus: false */
 /*
 
@@ -21,13 +18,13 @@
     js_beautify(js_source_text, options);
 
   The options are:
-    indent_size (default 4)          — indentation size,
-    indent_char (default space)      — character to indent with,
-    preserve_newlines (default true) — whether existing line breaks should be preserved,
+    indent_size (default 4)          â€” indentation size,
+    indent_char (default space)      â€” character to indent with,
+    preserve_newlines (default true) â€” whether existing line breaks should be preserved,
     preserve_max_newlines (default unlimited) - maximum number of line breaks to be preserved in one chunk,
-    indent_level (default 0)         — initial indentation level, you probably won't need this ever,
+    indent_level (default 0)         â€” initial indentation level, you probably won't need this ever,
 
-    jslint_happy (default false) — if true, then jslint-stricter mode is enforced.
+    jslint_happy (default false) â€” if true, then jslint-stricter mode is enforced.
 
             jslint_happy   !jslint_happy
             ---------------------------------
@@ -38,7 +35,10 @@
 
     e.g
 
-    js_beautify(js_source_text, {indent_size: 1, indent_char: '\t'});
+    js_beautify(js_source_text, {
+      'indent_size': 1,
+      'indent_char': '\t'
+    });
 
 
 */
@@ -94,6 +94,14 @@ function js_beautify(js_source_text, options) {
         return s.replace(/^\s\s*|\s\s*$/, '');
     }
 
+    function force_newline()
+    {
+        var old_keep_array_indentation = opt_keep_array_indentation;
+        opt_keep_array_indentation = false;
+        print_newline()
+        opt_keep_array_indentation = old_keep_array_indentation;
+    }
+
     function print_newline(ignore_repeated) {
 
         flags.eat_next_space = false;
@@ -114,7 +122,7 @@ function js_beautify(js_source_text, options) {
             just_added_newline = true;
             output.push("\n");
         }
-        for (var i = 0; i < flags.indentation_level; i += 1) {
+        for (var i = 0; i < flags.indentation_level + opt_indent_level; i += 1) {
             output.push(indent_string);
         }
         if (flags.var_line && flags.var_line_reindented) {
@@ -175,7 +183,7 @@ function js_beautify(js_source_text, options) {
             in_case: false,
             eat_next_space: false,
             indentation_baseline: -1,
-            indentation_level: (flags ? flags.indentation_level + ((flags.var_line && flags.var_line_reindented) ? 1 : 0) : opt_indent_level),
+            indentation_level: (flags ? flags.indentation_level + ((flags.var_line && flags.var_line_reindented) ? 1 : 0) : 0),
             ternary_depth: 0
         };
     }
@@ -195,6 +203,14 @@ function js_beautify(js_source_text, options) {
         }
     }
 
+    function all_lines_start_with(lines, c) {
+        for (var i = 0; i < lines.length; i++) {
+            if (trim(lines[i])[0] != c) {
+                return false;
+            }
+        }
+        return true;
+    }
 
     function in_array(what, arr) {
         for (var i = 0; i < arr.length; i += 1) {
@@ -1072,7 +1088,7 @@ function js_beautify(js_source_text, options) {
 
             var lines = token_text.split(/\x0a|\x0d\x0a/);
 
-            if (/^\/\*\*/.test(token_text)) {
+            if (all_lines_start_with(lines.slice(1), '*')) {
                 // javadoc: reformat and reindent
                 print_newline();
                 output.push(lines[0]);
@@ -1111,7 +1127,7 @@ function js_beautify(js_source_text, options) {
             if (is_expression(flags.mode)) {
                 print_single_space();
             } else {
-                print_newline();
+                force_newline();
             }
             break;
 
@@ -1124,7 +1140,7 @@ function js_beautify(js_source_text, options) {
                 print_single_space();
             }
             print_token();
-            print_newline();
+            force_newline();
             break;
 
         case 'TK_UNKNOWN':
@@ -1140,6 +1156,17 @@ function js_beautify(js_source_text, options) {
         last_text = token_text;
     }
 
-    return output.join('').replace(/[\n ]+$/, '');
+    var sweet_code = output.join('').replace(/[\n ]+$/, '');
+    if (opt_indent_level) {
+        for (i = 0 ; i < opt_indent_level; i++) {
+            sweet_code = indent_string + sweet_code;
+        }
+    }
+    return sweet_code;
 
 }
+
+// Add support for CommonJS. Just put this file somewhere on your require.paths
+// and you will be able to `var js_beautify = require("beautify").js_beautify`.
+if (typeof exports !== "undefined")
+    exports.js_beautify = js_beautify;
