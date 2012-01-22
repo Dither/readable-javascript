@@ -14,6 +14,14 @@ function trim_comments(str)
    tmp = tmp.replace(/^\s+/g, '');
    return tmp;
 }
+
+String.prototype.escapeHTMLforJS = function () {                                        
+  return(                                                                 
+    this.replace(/>/g,'&gt;').
+         replace(/</g,'&lt;')/*.
+         replace(/"/g,'&quot;')*/
+  );
+};
   
 function unpacker_filter(source)
 {

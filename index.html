@@ -4,6 +4,15 @@
 <title>Readable JavaScript</title>
 <script type="text/javascript">
 window.addEventListener('load', function () {
+    function onConnectHandler(event) {
+        if (event && event.origin && event.origin.indexOf('popup.html') > -1 && event.origin.indexOf('widget://') > -1) {
+            var tab = opera.extension.tabs.getFocused();
+            if (tab) {
+                tab.postMessage('send_bg_port', [event.source]);
+            }
+        }
+    }
+
     var storage = widget.preferences;
     if (storage['enable_button'] === 'true') {
         var theButton;
@@ -18,6 +27,8 @@ window.addEventListener('load', function () {
         }
         theButton = opera.contexts.toolbar.createItem(toolbarUIItemProperties);
         opera.contexts.toolbar.addItem(theButton);
+        
+        opera.extension.onconnect = onConnectHandler;
     }
 }, false);
 </script>

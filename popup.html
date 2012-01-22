@@ -8,9 +8,32 @@
 <script type='text/javascript' src='includes/unpacker_myobfuscate.js'></script>
 <script type='text/javascript' src='includes/common.js'></script>
 <script type='text/javascript'>
+
 document.getElementsByTagName('html')[0].setAttribute('lang', window.navigator.language.slice(0,2));
 
-var storage = widget.preferences;
+var theport, storage = widget.preferences;
+
+function onMessageHandler(event) {
+    switch (event.data.type) {
+    case 'give-selection':
+        document.getElementById('inputjs').value = event.data.text;
+        break;
+    default:
+    }
+    if (document.getElementById('inputtext')) document.getElementById('inputtext').focus();
+}
+
+if (opera.extension) opera.extension.onmessage = function (event) {
+    if (event.data == "send_tab_port") {
+        if (event.ports.length > 0) {
+            theport = event.ports[0];
+            if (theport) {
+                theport.onmessage = onMessageHandler;
+                theport.postMessage('get-selection');
+            }
+        }
+    }
+}
 
 function make_readable() {
   var sourcecode = document.getElementById('inputjs').value;
@@ -27,15 +50,19 @@ function make_readable() {
   });
     
   document.getElementById('inputjs').value = newjs;
-  setTimeout(function(){document.getElementById('makereadable').disabled = false;},100);
+  setTimeout(function(){
+      document.getElementById('makereadable').disabled = false;
+  }, 100);
 }
+
 </script>
 </head>
 <body onload="document.getElementById('inputjs').focus()">
 <form action="?" method="post">
     <fieldset class="inputjsbox">
-      <label id="labeljs" for="inputjs">JavaScript: </label><br><textarea id="inputjs" type="text" name="inputjs" cols="82" rows="25" required placeholder="/*JavaScript code*/ var test=1; function test(){var a = test; return;}"></textarea>
-      <button onclick="make_readable()" id="makereadable">Make readable</button>
+      <button onclick="make_readable()" id="makereadable">Make readable</button><br />
+      <textarea id="inputjs" type="text" name="inputjs" cols="82" rows="25" required placeholder="/*JavaScript code*/ var test=1; function test(){var a = test; return;}"></textarea><br />
+      <label id="labeljs" for="inputjs">&uarr; JavaScript</label><br>
     </fieldset>
 </form>
 </body>
