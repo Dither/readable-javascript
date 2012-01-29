@@ -156,6 +156,12 @@ function js_beautify(js_source_text, options) {
 
 
     function print_single_space() {
+
+        if (last_type === 'TK_COMMENT') {
+            // no you will not print just a space after a comment
+            return print_newline(true);
+        }
+
         if (flags.eat_next_space) {
             flags.eat_next_space = false;
             return;
@@ -455,7 +461,7 @@ function js_beautify(js_source_text, options) {
         if (c === "'" || // string
         c === '"' || // string
         (c === '/' &&
-            ((last_type === 'TK_WORD' && in_array(last_text, ['return', 'do'])) ||
+            ((last_type === 'TK_WORD' && in_array(last_text, ['return', 'do', 'else'])) ||
                 (last_type === 'TK_COMMENT' || last_type === 'TK_START_EXPR' || last_type === 'TK_START_BLOCK' || last_type === 'TK_END_BLOCK' || last_type === 'TK_OPERATOR' || last_type === 'TK_EQUALS' || last_type === 'TK_EOF' || last_type === 'TK_SEMICOLON')))) { // regexp
             var sep = c;
             var esc = false;
@@ -1158,7 +1164,6 @@ function js_beautify(js_source_text, options) {
                 if (lines.length > 1) {
                     // multiline comment block starts with a new line
                     print_newline();
-                    trim_output();
                 } else {
                     // single-line /* comment */ stays where it is
                     print_single_space();
