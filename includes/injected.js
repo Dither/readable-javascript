@@ -175,9 +175,9 @@ li.L9 { background: #eee }\
         }, s2b(storage['autoparse_js']) ? 0 : 300);
 
         if (s2b(storage['enable_coloring'])) {
-            code.textContent = code.textContent.escapeHTMLforJS();
+            //code.textContent = code.textContent.escapeHTMLforJS();
 
-            document.getElementsByTagName('PRE')[0].className = 'prettyprint lang-javascript';
+            document.getElementsByTagName('PRE')[0].className = 'prettyprint language-javascript';
             document.getElementsByTagName('PRE')[0].id = 'javascript'
 
             var css1 = document.createElement('style');
@@ -188,7 +188,7 @@ li.L9 { background: #eee }\
             setTimeout(function () {
                 log('coloring JavaScript...');
                 init_pretty_print();
-                window.prettyPrint(false);
+                window.prettyPrint();
             }, s2b(storage['autoparse_js']) ? 100 : 400);
         }
     }

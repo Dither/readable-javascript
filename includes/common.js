@@ -18,8 +18,7 @@ function trim_comments(str)
 String.prototype.escapeHTMLforJS = function () {                                        
   return(                                                                 
     this.replace(/>/g,'&gt;').
-         replace(/</g,'&lt;')/*.
-         replace(/"/g,'&quot;')*/
+         replace(/</g,'&lt;')
   );
 };
   
