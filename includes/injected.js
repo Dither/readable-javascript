@@ -177,7 +177,7 @@ li.L9 { background: #eee }\
         if (s2b(storage['enable_coloring'])) {
             //code.textContent = code.textContent.escapeHTMLforJS();
 
-            document.getElementsByTagName('PRE')[0].className = 'prettyprint language-javascript';
+            document.getElementsByTagName('PRE')[0].className = 'prettyprint lang-js';
             document.getElementsByTagName('PRE')[0].id = 'javascript'
 
             var css1 = document.createElement('style');
@@ -188,7 +188,9 @@ li.L9 { background: #eee }\
             setTimeout(function () {
                 log('coloring JavaScript...');
                 init_pretty_print();
-                window.prettyPrint();
+                setTimeout(function () {
+                    window.prettyPrint();
+                }, 0);
             }, s2b(storage['autoparse_js']) ? 100 : 400);
         }
     }

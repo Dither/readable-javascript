@@ -64,7 +64,7 @@ function init_pretty_print() {
  * UI events.
  * If set to {@code false}, {@code prettyPrint()} is synchronous.
  */
-window['PR_SHOULD_USE_CONTINUATION'] = true;
+window['PR_SHOULD_USE_CONTINUATION'] = false;
 
 (function () {
   // Keyword lists for various languages.
@@ -447,7 +447,7 @@ var REGEXP_PRECEDER_PATTERN = '(?:^^\\.?|[+-]|[!=]=?=?|\\#|%=?|&&?=?|\\(|\\*=?|[
     var rewritten = [];
     for (var i = 0, n = regexs.length; i < n; ++i) {
       var regex = regexs[i];
-      if (regex.global || regex.multiline) { throw new Error('' + regex); }
+      //if (regex.global || regex.multiline) { throw new Error('' + regex); }
       rewritten.push(
           '(?:' + allowAnywhereFoldCaseAndRenumberGroups(regex) + ')');
     }
@@ -1118,49 +1118,33 @@ var REGEXP_PRECEDER_PATTERN = '(?:^^\\.?|[+-]|[!=]=?=?|\\#|%=?|&&?=?|\\(|\\*=?|[
     nDecorations = decorations.length = decPos;
   
     var decoration = null;
+
+    var spn, node, spanStart, spanEnd, decEnd, end, styledText,
+        textNode = spans[spanIndex + 1],
+        parentNode = textNode.parentNode,
+        doc = textNode.ownerDocument,
+        pre = doc.createElement('PRE');
+      
     while (spanIndex < nSpans) {
-      var spanStart = spans[spanIndex];
-      var spanEnd = spans[spanIndex + 2] || sourceLength;
-  
-      var decEnd = decorations[decorationIndex + 2] || sourceLength;
-  
-      var end = Math.min(spanEnd, decEnd);
-  
-      var textNode = spans[spanIndex + 1];
-      var styledText;
-      if (textNode.nodeType !== 1  // Don't muck with <BR>s or <LI>s
-          // Don't introduce spans around empty text nodes.
-          && (styledText = source.substring(sourceIndex, end))) {
-        // This may seem bizarre, and it is.  Emitting LF on IE causes the
-        // code to display with spaces instead of line breaks.
-        // Emitting Windows standard issue linebreaks (CRLF) causes a blank
-        // space to appear at the beginning of every line but the first.
-        // Emitting an old Mac OS 9 line separator makes everything spiffy.
-        if (isIE) { styledText = styledText.replace(newlineRe, '\r'); }
-        textNode.nodeValue = styledText;
-        var document = textNode.ownerDocument;
-        var span = document.createElement('SPAN');
-        span.className = decorations[decorationIndex + 1];
-        var parentNode = textNode.parentNode;
-        parentNode.replaceChild(span, textNode);
-        span.appendChild(textNode);
-        if (sourceIndex < spanEnd) {  // Split off a text node.
-          spans[spanIndex + 1] = textNode
-              // TODO: Possibly optimize by using '' if there's no flicker.
-              = document.createTextNode(source.substring(end, spanEnd));
-          parentNode.insertBefore(textNode, span.nextSibling);
-        }
+      spanStart = spans[spanIndex];
+      spanEnd = spans[spanIndex + 2] || sourceLength;
+      decEnd = decorations[decorationIndex + 2] || sourceLength;
+      end = Math.min(spanEnd, decEnd);
+
+      if (styledText = source.substring(sourceIndex, end)) {
+        spn = doc.createElement('SPAN');
+        spn.className = decorations[decorationIndex + 1];
+        spn.appendChild(doc.createTextNode(styledText));
+        pre.appendChild(spn);
       }
   
       sourceIndex = end;
   
-      if (sourceIndex >= spanEnd) {
-        spanIndex += 2;
-      }
-      if (sourceIndex >= decEnd) {
-        decorationIndex += 2;
-      }
+      if (sourceIndex >= spanEnd) spanIndex += 2;
+      if (sourceIndex >= decEnd) decorationIndex += 2;
     }
+    parentNode.innerHTML = '';
+    parentNode.appendChild(pre);
   }
 
 
@@ -1196,9 +1180,7 @@ var REGEXP_PRECEDER_PATTERN = '(?:^^\\.?|[+-]|[!=]=?=?|\\#|%=?|&&?=?|\\(|\\*=?|[
     if (!(extension && langHandlerRegistry.hasOwnProperty(extension))) {
       // Treat it as markup if the first non whitespace character is a < and
       // the last non-whitespace character is a >.
-      extension = /^\s*</.test(source)
-          ? 'default-markup'
-          : 'default-code';
+      extension = /^\s*</.test(source) ? 'default-markup' : 'default-code';
     }
     return langHandlerRegistry[extension];
   }
@@ -1304,7 +1286,7 @@ var REGEXP_PRECEDER_PATTERN = '(?:^^\\.?|[+-]|[!=]=?=?|\\#|%=?|&&?=?|\\(|\\*=?|[
   function applyDecorator(job) {
     var opt_langExtension = job.langExtension;
 
-    try {
+    //try {
       // Extract tags, and convert the source code to plain text.
       var sourceAndSpans = extractSourceSpans(job.sourceNode);
       /** Plain text. @type {string} */
@@ -1319,41 +1301,15 @@ var REGEXP_PRECEDER_PATTERN = '(?:^^\\.?|[+-]|[!=]=?=?|\\#|%=?|&&?=?|\\(|\\*=?|[
       // Integrate the decorations and tags back into the source code,
       // modifying the sourceNode in place.
       recombineTagsAndDecorations(job);
-    } catch (e) {
+    /*} catch (e) {
       if ('console' in window) {
         console['log'](e && e['stack'] ? e['stack'] : e);
       }
-    }
-  }
-
-  /**
-   * @param sourceCodeHtml {string} The HTML to pretty print.
-   * @param opt_langExtension {string} The language name to use.
-   *     Typically, a filename extension like 'cpp' or 'java'.
-   * @param opt_numberLines {number|boolean} True to number lines,
-   *     or the 1-indexed number of the first line in sourceCodeHtml.
-   */
-  function prettyPrintOne(sourceCodeHtml, opt_langExtension, opt_numberLines) {
-    var container = document.createElement('PRE');
-    // This could cause images to load and onload listeners to fire.
-    // E.g. <img onerror="alert(1337)" src="nosuchimage.png">.
-    // We assume that the inner HTML is from a trusted source.
-    container.innerHTML = sourceCodeHtml;
-    if (opt_numberLines) {
-      numberLines(container, opt_numberLines);
-    }
-
-    var job = {
-      langExtension: opt_langExtension,
-      numberLines: opt_numberLines,
-      sourceNode: container
-    };
-    applyDecorator(job);
-    return container.innerHTML;
+    }/**/
   }
 
   function prettyPrint(opt_whenDone) {
-    function byTagName(tn) { return document.getElementsByTagName(tn); }
+    function byTagName(tn) { return document.querySelectorAll(tn); }
     // fetch a list of nodes to rewrite
     var codeSegments = [byTagName('pre'), byTagName('code'), byTagName('xmp')];
     var elements = [];
@@ -1378,9 +1334,7 @@ var REGEXP_PRECEDER_PATTERN = '(?:^^\\.?|[+-]|[!=]=?=?|\\#|%=?|&&?=?|\\(|\\*=?|[
     var prettyPrintRe = /\bprettyprint\b/;
 
     function doWork() {
-      var endTime = (window['PR_SHOULD_USE_CONTINUATION'] ?
-                     clock['now']() + 250 /* ms */ :
-                     Infinity);
+      var endTime = (window['PR_SHOULD_USE_CONTINUATION'] ? clock['now']() + 250 /* ms */ : Infinity);
       for (; k < elements.length && clock['now']() < endTime; k++) {
         var cs = elements[k];
         var className = cs.className;
@@ -1408,8 +1362,7 @@ var REGEXP_PRECEDER_PATTERN = '(?:^^\\.?|[+-]|[!=]=?=?|\\#|%=?|&&?=?|\\(|\\*=?|[
           // make sure this is not nested in an already prettified element
           var nested = false;
           for (var p = cs.parentNode; p; p = p.parentNode) {
-            if ((p.tagName === 'pre' || p.tagName === 'code' ||
-                 p.tagName === 'xmp') &&
+            if ((p.tagName === 'pre' || p.tagName === 'code' || p.tagName === 'xmp') && 
                 p.className && p.className.indexOf('prettyprint') >= 0) {
               nested = true;
               break;
@@ -1422,7 +1375,7 @@ var REGEXP_PRECEDER_PATTERN = '(?:^^\\.?|[+-]|[!=]=?=?|\\#|%=?|&&?=?|\\(|\\*=?|[
             lineNums = lineNums
                   ? lineNums[1] && lineNums[1].length ? +lineNums[1] : true
                   : false;
-            if (lineNums) { numberLines(cs, lineNums); }
+            //if (lineNums) { numberLines(cs, lineNums); }
 
             // do the pretty printing
             prettyPrintingJob = {
@@ -1445,14 +1398,6 @@ var REGEXP_PRECEDER_PATTERN = '(?:^^\\.?|[+-]|[!=]=?=?|\\#|%=?|&&?=?|\\(|\\*=?|[
     doWork();
   }
 
-   /**
-    * Find all the {@code <pre>} and {@code <code>} tags in the DOM with
-    * {@code class=prettyprint} and prettify them.
-    *
-    * @param {Function?} opt_whenDone if specified, called when the last entry
-    *     has been finished.
-    */
-  window['prettyPrintOne'] = prettyPrintOne;
    /**
     * Pretty print a chunk of code.
     *
