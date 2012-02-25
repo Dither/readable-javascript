@@ -1399,11 +1399,12 @@ var REGEXP_PRECEDER_PATTERN = '(?:^^\\.?|[+-]|[!=]=?=?|\\#|%=?|&&?=?|\\(|\\*=?|[
   }
 
    /**
-    * Pretty print a chunk of code.
-    *
-    * @param {string} sourceCodeHtml code as html
-    * @return {string} code as html, but prettier
-    */
+   * Find all the {@code <pre>} and {@code <code>} tags in the DOM with
+   * {@code class=prettyprint} and prettify them.
+   *
+   * @param {Function?} opt_whenDone if specified, called when the last entry
+   *     has been finished.
+   */
   window['prettyPrint'] = prettyPrint;
    /**
     * Contains functions for creating and registering new language handlers.

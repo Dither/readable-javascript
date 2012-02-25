@@ -1,9 +1,9 @@
 <?xml version='1.0' encoding='utf-8'?>
-<widget xmlns="http://www.w3.org/ns/widgets" id="extensions:readable-javascript" version="1.3">
+<widget xmlns="http://www.w3.org/ns/widgets" id="extensions:readable-javascript" version="1.4">
   <name>Readable JavaScript</name>
   <author href="http://my.opera.com/DitherSky/blog/">Dither</author>
   <description xml:lang="en">Extension for auto-formatting and colorizing JavaScript code. Triggered by files with .js extension in their URL or by toolbar button.</description>
-  <description xml:lang="ru">Расширение для автоматического форматирования и подсвечивания JavaScript кода. Запускается при обнаружении файла с расширением .js в адресе или клике на кнопке.</description>
+  <description xml:lang="ru">Расширение для автоматического форматирования и подсвечивания JavaScript кода. Запускается при обнаружении файла с расширением .js в адресе или по клику на кнопке.</description>
   <preference name="indent_size" value="4"/>
   <preference name="preserve_newlines" value="true"/>
   <preference name="keep_array_indentation" value="true"/>
